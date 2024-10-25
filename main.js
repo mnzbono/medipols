@@ -5,8 +5,8 @@ const pct = 2/3
 let lastTap = 0;
 
 
-window.addEventListener('click', handleClick)
-window.addEventListener('touchend', handleClick)
+canvas.addEventListener('click', handleClick)
+canvas.addEventListener('touchend', handleClick)
 
 window.addEventListener('resize', draw);
 
