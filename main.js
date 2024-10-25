@@ -3,7 +3,7 @@ let stroke = 'white'
 const canvas = document.getElementById('myCanvas');
 const pct = 2/3
 let lastTap = 0;
-
+const SIDES_ALLOWED = [1, 3, 4, 5, 6, 7, 8]
 
 canvas.addEventListener('click', handleClick)
 canvas.addEventListener('touchend', handleClick)
@@ -28,7 +28,7 @@ function handleClick(e) {
         toggleFullScreen();
     }
 
-    sides = Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+
     draw();
 }
 
@@ -49,17 +49,23 @@ function toggleFullScreen() {
 }
   
 
-function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'black', fillStyle = 'transparent') {
+function drawPolygon(ctx, x, y, radius, _sides, startAngle = 0, strokeStyle = stroke, fillStyle = 'transparent') {
     ctx.beginPath();
     ctx.strokeStyle = strokeStyle;
     ctx.fillStyle = fillStyle;
-  
-    for (let i = 0; i < sides; i++) {
-      const angle = startAngle + (i * 2 * Math.PI / sides);
-      const pointX = x + radius * Math.cos(angle);
-      const pointY = y + radius * Math.sin(angle);
-      if (i === 0) {  ctx.moveTo(pointX, pointY); }
-      else {  ctx.lineTo(pointX, pointY);  }
+    ctx.lineWidth = 2
+
+    if (_sides===1) {
+        ctx.arc(x, y, radius, 0, 2*Math.PI)
+    }
+    else {
+        for (let i = 0; i < _sides; i++) {
+            const angle = startAngle + (i * 2 * Math.PI / _sides);
+            const pointX = x + radius * Math.cos(angle);
+            const pointY = y + radius * Math.sin(angle);
+            if (i === 0) {  ctx.moveTo(pointX, pointY); }
+            else {  ctx.lineTo(pointX, pointY);  }
+        }
     }
   
     ctx.closePath();
@@ -67,7 +73,12 @@ function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'bl
     ctx.stroke();
   }
 
-  function draw() {
+  function draw(randomized = true) {
+    if (randomized) {
+        sides = SIDES_ALLOWED[Math.floor(Math.random() * SIDES_ALLOWED.length)] ;
+        stroke = getRandomColor();
+        console.log(sides, stroke)
+    }
     requestAnimationFrame(ddraw)
   }
 
@@ -80,7 +91,7 @@ function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'bl
     const centerY = (window.innerHeight) /2;
     const radius = Math.min(centerX, centerY) * pct
 
-    drawPolygon(ctx, centerX, centerY, radius, sides, .5*Math.PI-(Math.PI / sides), stroke)
+    drawPolygon(ctx, centerX, centerY, radius, sides, .5*Math.PI-(Math.PI / sides))
   }
 
   function resizeCanvas() {
@@ -89,4 +100,11 @@ function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'bl
   }
 
 
-  
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
