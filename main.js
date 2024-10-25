@@ -4,11 +4,8 @@ const canvas = document.getElementById('myCanvas');
 const pct = 2/3
 
 
-window.addEventListener('click', (e)=>{
-    if (e.detail===2) toggleFullScreen()
-    sides = Math.floor( Math.random() * (12 - 3 + 1)) + 3;
-    draw()
-})
+window.addEventListener('click', handleClick)
+window.addEventListener('touchend', handleClick)
 
 window.addEventListener('resize', draw);
 
@@ -16,7 +13,14 @@ window.onload = () => {
     draw();
   }
 
-  
+
+function handleClick(e) {
+    if (e.type==='touchend') e.preventDefault()
+    if (e.detail===2) toggleFullScreen()
+        sides = Math.floor( Math.random() * (12 - 3 + 1)) + 3;
+        draw()
+  }
+
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -45,7 +49,7 @@ function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'bl
   }
 
   function draw() {
-    requestAnimationFrame(ddraw())
+    requestAnimationFrame(ddraw)
   }
 
 
