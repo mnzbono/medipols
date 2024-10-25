@@ -2,6 +2,7 @@ let sides = 3;
 let stroke = 'white'
 const canvas = document.getElementById('myCanvas');
 const pct = 2/3
+let lastTap = 0;
 
 
 window.addEventListener('click', handleClick)
@@ -15,19 +16,37 @@ window.onload = () => {
 
 
 function handleClick(e) {
-    if (e.type==='touchend') e.preventDefault()
-    if (e.detail===2) toggleFullScreen()
-        sides = Math.floor( Math.random() * (12 - 3 + 1)) + 3;
-        draw()
-  }
+    if (e.type === 'touchend') {
+        e.preventDefault();
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+            toggleFullScreen();
+        }
+        lastTap = currentTime;
+    } else if (e.type === 'click' && e.detail === 2) {
+        toggleFullScreen();
+    }
+
+    sides = Math.floor(Math.random() * (12 - 3 + 1)) + 3;
+    draw();
+}
 
 function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else if (document.exitFullscreen) {
-      document.exitFullscreen();
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+            document.documentElement.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+        }
     }
-  }
+}
   
 
 function drawPolygon(ctx, x, y, radius, sides, startAngle = 0, strokeStyle = 'black', fillStyle = 'transparent') {
