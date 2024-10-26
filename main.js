@@ -1,13 +1,13 @@
-let sides = 3;
-let stroke = 'white'
-const canvas = document.getElementById('myCanvas');
-const pct = 2/3
+let sides = 3;          // ready to use values
+let stroke = 'white'    // ready to use values
 let lastTap = 0;
-const SIDES_ALLOWED = [1, 3, 4, 5, 6, 7, 8]
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+const pct = 2/3  // amount of screen used
+const SIDES_ALLOWED = Array.from(new Array(12), (_,i) => i%8+1) //[1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4] higher weight of simpler shapes plus cross
 
 canvas.addEventListener('click', handleClick)
 canvas.addEventListener('touchend', handleClick)
-
 window.addEventListener('resize', draw);
 
 window.onload = () => {
@@ -18,34 +18,40 @@ window.onload = () => {
 function handleClick(e) {
     if (e.type === 'touchend') {
         e.preventDefault();
-        const currentTime = new Date().getTime();
+        goFullScreen()
+
+        /*currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
         if (tapLength < 300 && tapLength > 0) {
-            toggleFullScreen();
+            exitFullscreen();
         }
-        lastTap = currentTime;
-    } else if (e.type === 'click' && e.detail === 2) {
-        toggleFullScreen();
+        lastTap = currentTime;*/
+    } else if (e.type === 'click') {
+        //goFullScreen();
+        if (e.detail===2) goFullScreen()
     }
-
-
     draw();
 }
 
-function toggleFullScreen() {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+function goFullScreen() {
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen();
         } else if (document.documentElement.webkitRequestFullscreen) { // Safari
             document.documentElement.webkitRequestFullscreen();
         }
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { // Safari
-            document.webkitExitFullscreen();
-        }
+}
+
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
     }
+}
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) goFullScreen();
+    else exitFullscreen();
 }
   
 
@@ -55,8 +61,14 @@ function drawPolygon(ctx, x, y, radius, _sides, startAngle = 0, strokeStyle = st
     ctx.fillStyle = fillStyle;
     ctx.lineWidth = 2
 
-    if (_sides===1) {
+    if (_sides===1) { // circle is the 1 side
         ctx.arc(x, y, radius, 0, 2*Math.PI)
+    }
+    else if (_sides===2){ // cross is the 2 sides
+        ctx.moveTo(x-radius, y)
+        ctx.lineTo(x+radius, y)
+        ctx.moveTo(x, y-radius)
+        ctx.lineTo(x, y+radius)
     }
     else {
         for (let i = 0; i < _sides; i++) {
@@ -77,7 +89,7 @@ function drawPolygon(ctx, x, y, radius, _sides, startAngle = 0, strokeStyle = st
     if (randomized) {
         sides = SIDES_ALLOWED[Math.floor(Math.random() * SIDES_ALLOWED.length)] ;
         stroke = getRandomColor();
-        console.log(sides, stroke)
+        //console.log(sides, stroke) // show color in case user wants to save it
     }
     requestAnimationFrame(ddraw)
   }
@@ -85,7 +97,6 @@ function drawPolygon(ctx, x, y, radius, _sides, startAngle = 0, strokeStyle = st
 
   function ddraw() {
     resizeCanvas()
-    const ctx = canvas.getContext('2d');
 
     const centerX = (window.innerWidth) /2;
     const centerY = (window.innerHeight) /2;
